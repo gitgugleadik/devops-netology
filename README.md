@@ -21,3 +21,8 @@ _override.tf.json
 игнорировать файлы
 .terraformrc
 terraform.rc
+
+Проверка git difftool
+Создана новай ветка fix
+
+Задание 4 Упрощае жизнь
