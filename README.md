@@ -49,7 +49,20 @@ sdb                    8:16   0  2.5G  0 disk
 sdc                    8:32   0  2.5G  0 disk 
 
 4. Используя fdisk, разбейте первый диск на 2 раздела: 2 Гб, оставшееся пространство.
-****
+vagrant@vagrant:~$ sudo fdisk /dev/sdb
+...
+vagrant@vagrant:~$ lsblk
+NAME                 MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                    8:0    0   64G  0 disk
+├─sda1                 8:1    0  512M  0 part /boot/efi
+├─sda2                 8:2    0    1K  0 part
+└─sda5                 8:5    0 63.5G  0 part
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm  /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm  [SWAP]
+sdb                    8:16   0  2.5G  0 disk
+├─sdb1                 8:17   0    2G  0 part
+└─sdb2                 8:18   0  511M  0 part
+sdc                    8:32   0  2.5G  0 disk
 
 5. Используя sfdisk, перенесите данную таблицу разделов на второй диск.
 vagrant@vagrant:~$ sudo sfdisk -d /dev/sdb > gugl_made.txt
@@ -70,8 +83,244 @@ sdc                    8:32   0  2.5G  0 disk
 └─sdc2                 8:34   0  511M  0 part
 
 6.     Соберите mdadm RAID1 на паре разделов 2 Гб.
-vagrant@vagrant:~$ sudo mdadm --create /dev/md0 --level=1 --raid-device=2 /dev/sdb1 /dev/sdc1
-****
+vagrant@vagrant:~$ sudo mdadm --create /dev/md1 --level=1 --raid-device=2 /dev/sdb1 /dev/sdc1
+NAME                 MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sda                    8:0    0   64G  0 disk
+├─sda1                 8:1    0  512M  0 part  /boot/efi
+├─sda2                 8:2    0    1K  0 part
+└─sda5                 8:5    0 63.5G  0 part
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm   /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm   [SWAP]
+sdb                    8:16   0  2.5G  0 disk
+├─sdb1                 8:17   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdb2                 8:18   0  511M  0 part
+sdc                    8:32   0  2.5G  0 disk
+├─sdc1                 8:33   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdc2                 8:34   0  511M  0 part
+
+7. Соберите mdadm RAID0 на второй паре маленьких разделов.
+vagrant@vagrant:~$ sudo mdadm --create /dev/md0 --level=0 --raid-device=2 /dev/sdb2 /dev/sdc2
+mdadm: Defaulting to version 1.2 metadata
+mdadm: array /dev/md0 started.
+vagrant@vagrant:~$ lsblk
+NAME                 MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sda                    8:0    0   64G  0 disk
+├─sda1                 8:1    0  512M  0 part  /boot/efi
+├─sda2                 8:2    0    1K  0 part
+└─sda5                 8:5    0 63.5G  0 part
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm   /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm   [SWAP]
+sdb                    8:16   0  2.5G  0 disk
+├─sdb1                 8:17   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdb2                 8:18   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+sdc                    8:32   0  2.5G  0 disk
+├─sdc1                 8:33   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdc2                 8:34   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+  
+  
+8. Создайте 2 независимых PV на получившихся md-устройствах.
+vagrant@vagrant:~$ sudo pvcreate /dev/md1 /dev/md0
+  Physical volume "/dev/md1" successfully created.
+  Physical volume "/dev/md0" successfully created.
+vagrant@vagrant:~$ sudo pvscan
+  PV /dev/sda5   VG vgvagrant       lvm2 [<63.50 GiB / 0    free]
+  PV /dev/md0                       lvm2 [1018.00 MiB]
+  PV /dev/md1                       lvm2 [<2.00 GiB]
+  Total: 3 [<66.49 GiB] / in use: 1 [<63.50 GiB] / in no VG: 2 [2.99 GiB]
+  
+  
+ 9. Создайте общую volume-group на этих двух PV.
+ vagrant@vagrant:~$ sudo vgcreate vg1 /dev/md1 /dev/md0
+  Volume group "vg1" successfully created
+ vagrant@vagrant:~$ sudo vgdisplay
+  --- Volume group ---
+  VG Name               vgvagrant
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               <63.50 GiB
+  PE Size               4.00 MiB
+  Total PE              16255
+  Alloc PE / Size       16255 / <63.50 GiB
+  Free  PE / Size       0 / 0
+  VG UUID               PaBfZ0-3I0c-iIdl-uXKt-JL4K-f4tT-kzfcyE
+
+  --- Volume group ---
+  VG Name               vg1
+  System ID
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  1
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               <2.99 GiB
+  PE Size               4.00 MiB
+  Total PE              765
+  Alloc PE / Size       0 / 0
+  Free  PE / Size       765 / <2.99 GiB
+  VG UUID               heM2Fx-cV5c-eGbw-rp0j-AISb-euuu-DM7RGG
+  
+10.Создайте LV размером 100 Мб, указав его расположение на PV с RAID0.
+vagrant@vagrant:~$ sudo lvcreate -L 100M vg1 /dev/md0
+  Logical volume "lvol0" created.
+vagrant@vagrant:~$ sudo lvs
+  LV     VG        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  lvol0  vg1       -wi-a----- 100.00m
+  root   vgvagrant -wi-ao---- <62.54g
+  swap_1 vgvagrant -wi-ao---- 980.00m
+
+  
+  
+11. Создайте mkfs.ext4 ФС на получившемся LV.
+vagrant@vagrant:~$ sudo mkfs.ext4 /dev/vg1/lvol0
+mke2fs 1.45.5 (07-Jan-2020)
+Creating filesystem with 25600 4k blocks and 25600 inodes
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (1024 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+12. Смонтируйте этот раздел в любую директорию, например, /tmp/new.
+  vagrant@vagrant:~$ sudo mount /dev/vg1/lvol0 /tmp/gugl
+ 
+vagrant@vagrant:~$ lsblk
+NAME                 MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sda                    8:0    0   64G  0 disk
+├─sda1                 8:1    0  512M  0 part  /boot/efi
+├─sda2                 8:2    0    1K  0 part
+└─sda5                 8:5    0 63.5G  0 part
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm   /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm   [SWAP]
+sdb                    8:16   0  2.5G  0 disk
+├─sdb1                 8:17   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdb2                 8:18   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+    └─vg1-lvol0      253:2    0  100M  0 lvm   /tmp/gugl
+sdc                    8:32   0  2.5G  0 disk
+├─sdc1                 8:33   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdc2                 8:34   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+    └─vg1-lvol0      253:2    0  100M  0 lvm   /tmp/gugl
+ 
+13. Поместите туда тестовый файл, например wget https://mirror.yandex.ru/ubuntu/ls-lR.gz -O /tmp/new/test.gz.
+vagrant@vagrant:~$ wget https://mirror.yandex.ru/ubuntu/ls-lR.gz -O /tmp/gugl/test.gz
+/tmp/gugl/test.gz: Permission denied
+vagrant@vagrant:~$ sudo wget https://mirror.yandex.ru/ubuntu/ls-lR.gz -O /tmp/gugl/test.gz
+--2021-12-01 16:05:53--  https://mirror.yandex.ru/ubuntu/ls-lR.gz
+Resolving mirror.yandex.ru (mirror.yandex.ru)... 213.180.204.183, 2a02:6b8::183
+Connecting to mirror.yandex.ru (mirror.yandex.ru)|213.180.204.183|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 22712347 (22M) [application/octet-stream]
+Saving to: ‘/tmp/gugl/test.gz’
+
+/tmp/gugl/test.gz          100%[=====================================>]  21.66M  6.07MB/s    in 3.9s
+
+2021-12-01 16:05:57 (5.50 MB/s) - ‘/tmp/gugl/test.gz’ saved [22712347/22712347]
+
+14. Прикрепите вывод lsblk
+vagrant@vagrant:~$ lsblk
+NAME                 MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sda                    8:0    0   64G  0 disk
+├─sda1                 8:1    0  512M  0 part  /boot/efi
+├─sda2                 8:2    0    1K  0 part
+└─sda5                 8:5    0 63.5G  0 part
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm   /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm   [SWAP]
+sdb                    8:16   0  2.5G  0 disk
+├─sdb1                 8:17   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdb2                 8:18   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+    └─vg1-lvol0      253:2    0  100M  0 lvm   /tmp/gugl
+sdc                    8:32   0  2.5G  0 disk
+├─sdc1                 8:33   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+└─sdc2                 8:34   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+    └─vg1-lvol0      253:2    0  100M  0 lvm   /tmp/gugl
+
+15. Протестируйте целостность файла:
+
+root@vagrant:~# gzip -t /tmp/new/test.gz
+root@vagrant:~# echo $?
+0
+
+16. Используя pvmove, переместите содержимое PV с RAID0 на RAID1.
+vagrant@vagrant:~$ sudo pvmove /dev/md0 /dev/md1
+  /dev/md0: Moved: 16.00%
+  /dev/md0: Moved: 100.00%
+vagrant@vagrant:~$ lsblk
+NAME                 MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sda                    8:0    0   64G  0 disk
+├─sda1                 8:1    0  512M  0 part  /boot/efi
+├─sda2                 8:2    0    1K  0 part
+└─sda5                 8:5    0 63.5G  0 part
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm   /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm   [SWAP]
+sdb                    8:16   0  2.5G  0 disk
+├─sdb1                 8:17   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+│   └─vg1-lvol0      253:2    0  100M  0 lvm   /tmp/gugl
+└─sdb2                 8:18   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+sdc                    8:32   0  2.5G  0 disk
+├─sdc1                 8:33   0    2G  0 part
+│ └─md1                9:1    0    2G  0 raid1
+│   └─vg1-lvol0      253:2    0  100M  0 lvm   /tmp/gugl
+└─sdc2                 8:34   0  511M  0 part
+  └─md0                9:0    0 1018M  0 raid0
+
+17. Сделайте --fail на устройство в вашем RAID1 md.
+vagrant@vagrant:~$ sudo mdadm /dev/md1 --fail /dev/sdc1
+mdadm: set /dev/sdc1 faulty in /dev/md1
+
+18. Подтвердите выводом dmesg, что RAID1 работает в деградированном состоянии.
+vagrant@vagrant:~$ dmesg | grep md1
+[  784.527959] md/raid1:md1: not clean -- starting background reconstruction
+[  784.527961] md/raid1:md1: active with 2 out of 2 mirrors
+[  784.528076] md1: detected capacity change from 0 to 2144337920
+[  784.528483] md: resync of RAID array md1
+[  795.213644] md: md1: resync done.
+[ 6968.659118] md/raid1:md1: Disk failure on sdc1, disabling device.
+               md/raid1:md1: Operation continuing on 1 devices.
+               
+ 19. Протестируйте целостность файла, несмотря на "сбойный" диск он должен продолжать быть доступен:
+ vagrant@vagrant:~$ gzip -t /tmp/gugl/test.gz && echo $?
+0
+20. Погасите тестовый хост, vagrant destroy.
+vagrant@vagrant:~$ exit
+logout
+Connection to 127.0.0.1 closed.
+
+C:\devops\Vagrant>vagrant destroy
+    default: Are you sure you want to destroy the 'default' VM? [y/N] y
+==> default: Forcing shutdown of VM...
+==> default: Destroying VM and associated drives...
+
 
 # devops-netology
 python add
