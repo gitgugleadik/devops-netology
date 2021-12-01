@@ -1,3 +1,78 @@
+Домашнее задание к занятию "3.5. Файловые системы"
+1.        Узнайте о sparse (разряженных) файлах.
+ файл, в котором последовательности нулевых байтов[1] заменены на информацию об этих последовательностях (список дыр).
+2.        Могут ли файлы, являющиеся жесткой ссылкой на один объект, иметь разные права доступа и владельца? Почему?
+Не могут. Проверил практически. 
+vagrant@vagrant:/tmp/gugl$ chmod 777 g_hardlink
+vagrant@vagrant:/tmp/gugl$ ll
+total 20
+drwxrwxr-x  3 vagrant vagrant 4096 Nov 27 07:08 ./
+drwxrwxrwt 14 root    root    4096 Nov 27 06:55 ../
+-rwxrwxrwx  2 vagrant vagrant   16 Nov 27 07:07 g_hardlink*
+lrwxrwxrwx  1 vagrant vagrant    5 Nov 27 07:05 g_simlink -> g.txt*
+-rwxrwxrwx  2 vagrant vagrant   16 Nov 27 07:07 g.txt*
+drwxrwxr-x  2 vagrant vagrant 4096 Nov 27 07:04 ttt/
+vagrant@vagrant:/tmp/gugl$ chmod 577 g.txt
+vagrant@vagrant:/tmp/gugl$ ll
+total 20
+drwxrwxr-x  3 vagrant vagrant 4096 Nov 27 07:08 ./
+drwxrwxrwt 14 root    root    4096 Nov 27 06:55 ../
+-r-xrwxrwx  2 vagrant vagrant   16 Nov 27 07:07 g_hardlink*
+lrwxrwxrwx  1 vagrant vagrant    5 Nov 27 07:05 g_simlink -> g.txt*
+-r-xrwxrwx  2 vagrant vagrant   16 Nov 27 07:07 g.txt*
+drwxrwxr-x  2 vagrant vagrant 4096 Nov 27 07:04 ttt/
+Жёсткая ссылка связывает индексный дескриптор файла с каталогом и даёт ему имя. Фактически это один и тот же файл. А права хранятся в файле. 
+Мягкая ссылка позволяет разные права на файл.
+
+3.        Сделайте vagrant destroy на имеющийся инстанс Ubuntu. Замените содержимое Vagrantfile следующим:
+ Vagrant.configure("2") do |config|
+ config.vm.box = "bento/ubuntu-20.04"
+  config.vm.provider :virtualbox do |vb|
+  lvm_experiments_disk0_path = "/tmp/lvm_experiments_disk0.vmdk"
+  lvm_experiments_disk1_path = "/tmp/lvm_experiments_disk1.vmdk"
+vb.customize ['createmedium', '--filename', lvm_experiments_disk0_path, '--size', 2560]
+  vb.customize ['createmedium', '--filename', lvm_experiments_disk1_path, '--size', 2560]
+  vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', lvm_experiments_disk0_path]
+vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', lvm_experiments_disk1_path]
+ end
+end
+Данная конфигурация создаст новую виртуальную машину с двумя дополнительными неразмеченными дисками по 2.5 Гб.
+vagrant@vagrant:~$ lsblk
+NAME                 MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                    8:0    0   64G  0 disk 
+├─sda1                 8:1    0  512M  0 part /boot/efi
+├─sda2                 8:2    0    1K  0 part 
+└─sda5                 8:5    0 63.5G  0 part 
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm  /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm  [SWAP]
+sdb                    8:16   0  2.5G  0 disk 
+sdc                    8:32   0  2.5G  0 disk 
+
+4. Используя fdisk, разбейте первый диск на 2 раздела: 2 Гб, оставшееся пространство.
+****
+
+5. Используя sfdisk, перенесите данную таблицу разделов на второй диск.
+vagrant@vagrant:~$ sudo sfdisk -d /dev/sdb > gugl_made.txt
+vagrant@vagrant:~$ sudo sfdisk -d /dev/sdc < gugl_made.txt
+vagrant@vagrant:~$ lsblk
+NAME                 MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                    8:0    0   64G  0 disk
+├─sda1                 8:1    0  512M  0 part /boot/efi
+├─sda2                 8:2    0    1K  0 part
+└─sda5                 8:5    0 63.5G  0 part
+  ├─vgvagrant-root   253:0    0 62.6G  0 lvm  /
+  └─vgvagrant-swap_1 253:1    0  980M  0 lvm  [SWAP]
+sdb                    8:16   0  2.5G  0 disk
+├─sdb1                 8:17   0    2G  0 part
+└─sdb2                 8:18   0  511M  0 part
+sdc                    8:32   0  2.5G  0 disk
+├─sdc1                 8:33   0    2G  0 part
+└─sdc2                 8:34   0  511M  0 part
+
+6.     Соберите mdadm RAID1 на паре разделов 2 Гб.
+vagrant@vagrant:~$ sudo mdadm --create /dev/md0 --level=1 --raid-device=2 /dev/sdb1 /dev/sdc1
+****
+
 # devops-netology
 python add
 
