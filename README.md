@@ -47,15 +47,15 @@ is_change = False
 for result in result_os.split('\n'):
     if result.find('modified') != -1:
         prepare_result = result.replace('\tmodified:   ', '')
-        print(os.getcwd() + '/' + prepare_result)
+        print(os.getcwd() + '/netology/sysadm-homeworks/' + prepare_result)
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
 vagrant@vagrant:~$ ./2.py
-/home/vagrant/01-intro-01/README.md
-/home/vagrant/01-intro-01/netology.md
-/home/vagrant/02-git-02-base/README.md
+/home/vagrant/netology/sysadm-homeworks/01-intro-01/README.md
+/home/vagrant/netology/sysadm-homeworks/01-intro-01/netology.md
+/home/vagrant/netology/sysadm-homeworks/02-git-02-base/README.md
 vagrant@vagrant:~$
 ```
 
