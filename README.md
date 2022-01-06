@@ -37,10 +37,10 @@ for result in result_os.split('\n'):
 
 ### Ваш скрипт:
 ```python
-#!/usr/bin/env python3
+
 import os
 
-bash_command = ["cd ~/netology/sysadm-homeworks", "git status"]
+bash_command = ["cd netology/sysadm-homeworks", "git status"]
 result_os = os.popen(' && '.join(bash_command)).read()
 is_change = False
 for result in result_os.split('\n'):
@@ -52,7 +52,10 @@ for result in result_os.split('\n'):
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-???
+C:\Devops\python>python 2.py
+C:\Devops\python/01-intro-01/README.md
+
+C:\Devops\python>
 ```
 
 ## Обязательная задача 3
