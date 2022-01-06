@@ -64,12 +64,31 @@ vagrant@vagrant:~$
 
 ### Ваш скрипт:
 ```python
-???
+#!/usr/bin/env python3
+
+import os
+import sys
+
+bash_command = ["cd " + sys.argv[1], "git status"]
+result_os = os.popen(' && '.join(bash_command)).read()
+is_change = False
+for result in result_os.split('\n'):
+    if result.find('modified') != -1:
+        prepare_result = result.replace('\tmodified:   ', '')
+        print(sys.argv[1] + '/' + prepare_result)
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-???
+vagrant@vagrant:~$ ./3.py /home/vagrant/netology/sysadm-homeworks
+/home/vagrant/netology/sysadm-homeworks/01-intro-01/README.md
+/home/vagrant/netology/sysadm-homeworks/01-intro-01/netology.md
+/home/vagrant/netology/sysadm-homeworks/02-git-02-base/README.md
+vagrant@vagrant:~$ ./3.py ~/netology/sysadm-homeworks
+/home/vagrant/netology/sysadm-homeworks/01-intro-01/README.md
+/home/vagrant/netology/sysadm-homeworks/01-intro-01/netology.md
+/home/vagrant/netology/sysadm-homeworks/02-git-02-base/README.md
+vagrant@vagrant:~$
 ```
 
 ## Обязательная задача 4
