@@ -96,12 +96,37 @@ vagrant@vagrant:~$
 
 ### Ваш скрипт:
 ```python
-???
+#!/usr/bin/env python3
+
+import socket
+
+# Function to return IP address
+def get_IP_byName(host_name):
+    try:
+        host_ip = socket.gethostbyname(host_name)
+    except:
+        print("Unable to get Hostname and IP")
+    return host_ip
+
+i = 0
+fdns = ['drive.google.com', 'mail.google.com', 'google.com']
+with open('dns.log', 'r') as file2:
+    for line in file2:
+        newIP = get_IP_byName(fdns[i])
+        if (line[:-1] != newIP):
+          print(fdns[i] + ' IP mismatch: ' + line[:-1] + ' ' + newIP)
+        i = i + 1
+
+with open('dns.log', 'w') as file:
+    for name in fdns:
+       file.write(get_IP_byName(name) + '\n')
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-???
+vagrant@vagrant:~$ ./4.py
+google.com IP mismatch: 142.250.150.102 142.250.150.139
+vagrant@vagrant:~$
 ```
 
 ## Дополнительное задание (со звездочкой*) - необязательно к выполнению
