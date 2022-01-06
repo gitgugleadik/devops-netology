@@ -37,25 +37,26 @@ for result in result_os.split('\n'):
 
 ### Ваш скрипт:
 ```python
+#!/usr/bin/env python3
 
 import os
 
-bash_command = ["cd netology/sysadm-homeworks", "git status"]
+bash_command = ["cd ~/netology/sysadm-homeworks", "git status"]
 result_os = os.popen(' && '.join(bash_command)).read()
 is_change = False
 for result in result_os.split('\n'):
     if result.find('modified') != -1:
         prepare_result = result.replace('\tmodified:   ', '')
         print(os.getcwd() + '/' + prepare_result)
-        break
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-C:\Devops\python>python 2.py
-C:\Devops\python/01-intro-01/README.md
-
-C:\Devops\python>
+vagrant@vagrant:~$ ./2.py
+/home/vagrant/01-intro-01/README.md
+/home/vagrant/01-intro-01/netology.md
+/home/vagrant/02-git-02-base/README.md
+vagrant@vagrant:~$
 ```
 
 ## Обязательная задача 3
