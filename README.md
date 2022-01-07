@@ -109,23 +109,26 @@ def get_IP_byName(host_name):
     return host_ip
 
 i = 0
-fdns = ['drive.google.com', 'mail.google.com', 'google.com']
+fdns = {'drive.google.com':'74.125.205.194', 'mail.google.com':'173.194.73.18', 'google.com':'173.194.222.102'}
 with open('dns.log', 'r') as file2:
     for line in file2:
-        newIP = get_IP_byName(fdns[i])
-        if (line[:-1] != newIP):
-          print(fdns[i] + ' IP mismatch: ' + line[:-1] + ' ' + newIP)
-        i = i + 1
-
-with open('dns.log', 'w') as file:
-    for name in fdns:
-       file.write(get_IP_byName(name) + '\n')
+       newIP = get_IP_byName(line.split(':')[0])
+       if line.split(':')[1][:-1] != newIP:
+          print(line.split(':')[0] + ' IP mismatch: ' + line.split(':')[1][:-1] + ' ' + newIP)
+with open('dns.log', 'w') as file2:
+    for key,val in fdns.items():
+        file2.write('{}:{}\n'.format(key,get_IP_byName(key)))
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
 vagrant@vagrant:~$ ./4.py
-google.com IP mismatch: 142.250.150.102 142.250.150.139
+drive.google.com IP mismatch: 64.233.165.194 74.125.205.194
+mail.google.com IP mismatch: 173.194.73.17 173.194.73.83
+google.com IP mismatch: 173.194.222.100 173.194.222.102
+vagrant@vagrant:~$ ./4.py
+mail.google.com IP mismatch: 173.194.73.17 173.194.73.18
+google.com IP mismatch: 173.194.222.138 173.194.222.113
 vagrant@vagrant:~$
 ```
 
