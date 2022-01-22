@@ -12,7 +12,14 @@ Server version: Apache/2.4.41 (Ubuntu)
 Server built:   2022-01-05T14:49:56
 
 не получается настроить с SSL  Дайте инструкцию. Делал по презентации не получилось.
+https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-apache-in-ubuntu-18-04-ru
+Спасибо, за инструкцию, по ней заработало
+root@vagrant:/etc/apache2/conf-available# apache2ctl configtest
+Syntax OK
+root@vagrant:/etc/apache2/conf-available# systemctl restart apache2
 
+https://192.168.0.102/
+открывается, через дополниетльно
 4. Проверьте на TLS уязвимости произвольный сайт в интернете (кроме сайтов МВД, ФСБ, МинОбр, НацБанк, РосКосмос, РосАтом, РосНАНО и любых госкомпаний, объектов КИИ, ВПК ... и тому подобное).
 
 Установите на Ubuntu ssh сервер, сгенерируйте новый приватный ключ. Скопируйте свой публичный ключ на другой сервер. Подключитесь к серверу по SSH-ключу.
