@@ -91,6 +91,34 @@ vagrant@vagrant:~$
 Удачно подключился
 
 6. Переименуйте файлы ключей из задания 5. Настройте файл конфигурации SSH клиента, так чтобы вход на удаленный сервер осуществлялся по имени сервера.
+добавил в файл etc/hosts
+строку 
+192.168.0.107	vagrant
+И подключился 
+student@student:~$ ssh vagrant@vagrant
+The authenticity of host 'vagrant (192.168.0.107)' can't be established.
+ECDSA key fingerprint is SHA256:wSHl+h4vAtTT7mbkj2lbGyxWXWTUf6VUliwpncjwLPM.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'vagrant' (ECDSA) to the list of known hosts.
+Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-80-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Sat 22 Jan 2022 03:04:38 PM UTC
+
+  System load:  0.0               Processes:             112
+  Usage of /:   2.5% of 61.31GB   Users logged in:       1
+  Memory usage: 22%               IPv4 address for eth0: 10.0.2.15
+  Swap usage:   0%                IPv4 address for eth1: 192.168.0.107
+
+
+This system is built by the Bento project by Chef Software
+More information can be found at https://github.com/chef/bento
+Last login: Sat Jan 22 14:29:00 2022 from 192.168.0.105
+vagrant@vagrant:~$ 
+
 
 Соберите дамп трафика утилитой tcpdump в формате pcap, 100 пакетов. Откройте файл pcap в Wireshark.
 
