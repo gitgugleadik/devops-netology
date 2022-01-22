@@ -119,8 +119,16 @@ vagrant@vagrant:~$
 
 
 7. Соберите дамп трафика утилитой tcpdump в формате pcap, 100 пакетов. Откройте файл pcap в Wireshark.
+vagrant@vagrant:/vagrant$ sudo tcpdump -c 100 -w 001.pcap -i eth1
+tcpdump: listening on eth1, link-type EN10MB (Ethernet), capture size 262144 bytes
+100 packets captured
+119 packets received by filter
+0 packets dropped by kernel
+vagrant@vagrant:/vagrant$
 
-
+Открыл в WireShark
+100-й пакет из wireShark
+"100","7.033665","192.168.0.105","192.168.0.107","SSHv2","102","Client: Encrypted packet (len=36)"
 
 # Домашнее задание к занятию "4.2. Использование Python для решения типовых DevOps задач"
 
