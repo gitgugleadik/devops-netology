@@ -21,10 +21,76 @@ root@vagrant:/etc/apache2/conf-available# systemctl restart apache2
 https://192.168.0.102/
 открывается, через дополниетльно
 4. Проверьте на TLS уязвимости произвольный сайт в интернете (кроме сайтов МВД, ФСБ, МинОбр, НацБанк, РосКосмос, РосАтом, РосНАНО и любых госкомпаний, объектов КИИ, ВПК ... и тому подобное).
+vagrant@vagrant:/vagrant/ssltest/testssl.sh$ ./testssl.sh -U --sneaky https://www.lazer-project.com/
 
-Установите на Ubuntu ssh сервер, сгенерируйте новый приватный ключ. Скопируйте свой публичный ключ на другой сервер. Подключитесь к серверу по SSH-ключу.
+###########################################################
+    testssl.sh       3.1dev from https://testssl.sh/dev/
+    (06890d4 2022-01-10 11:19:10 -- )
 
-Переименуйте файлы ключей из задания 5. Настройте файл конфигурации SSH клиента, так чтобы вход на удаленный сервер осуществлялся по имени сервера.
+      This program is free software. Distribution and
+             modification under GPLv2 permitted.
+      USAGE w/o ANY WARRANTY. USE IT AT YOUR OWN RISK!
+
+       Please file bugs @ https://testssl.sh/bugs/
+
+###########################################################
+
+ Using "OpenSSL 1.0.2-chacha (1.0.2k-dev)" [~183 ciphers]
+ on vagrant:./bin/openssl.Linux.x86_64
+ (built: "Jan 18 17:12:17 2019", platform: "linux-x86_64")
+
+
+ Start 2022-01-22 12:27:47        -->> 185.230.63.177:443 (www.lazer-project.com) <<--
+
+ rDNS (185.230.63.177):  unalocated.63.wixsite.com.
+ Service detected:       HTTP
+...
+
+5. Установите на Ubuntu ssh сервер, сгенерируйте новый приватный ключ. Скопируйте свой публичный ключ на другой сервер. Подключитесь к серверу по SSH-ключу.
+
+student@student:~$ ssh-keygen 
+...
+
+создали ключи
+далее копируем публичный на сервер
+student@student:~$ ssh-copy-id vagrant@192.168.0.107
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+vagrant@192.168.0.107's password: 
+
+для этого пришлось сервере в /etc/ssh/ssh_config 
+расскомментировать PasswordAuthentication yes
+student@student:~$ ssh-copy-id vagrant@192.168.0.107
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+vagrant@192.168.0.107's password: 
+ввел пароль 
+Number of key(s) added: 1
+
+теперь подключаемся без пароля
+
+student@student:~$ ssh vagrant@192.168.0.107
+Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-80-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Sat 22 Jan 2022 02:29:00 PM UTC
+
+  System load:  0.0               Processes:             112
+  Usage of /:   2.5% of 61.31GB   Users logged in:       1
+  Memory usage: 23%               IPv4 address for eth0: 10.0.2.15
+  Swap usage:   0%                IPv4 address for eth1: 192.168.0.107
+
+
+This system is built by the Bento project by Chef Software
+More information can be found at https://github.com/chef/bento
+Last login: Sat Jan 22 14:21:16 2022 from 192.168.0.105
+vagrant@vagrant:~$ 
+Удачно подключился
+
+6. Переименуйте файлы ключей из задания 5. Настройте файл конфигурации SSH клиента, так чтобы вход на удаленный сервер осуществлялся по имени сервера.
 
 Соберите дамп трафика утилитой tcpdump в формате pcap, 100 пакетов. Откройте файл pcap в Wireshark.
 
