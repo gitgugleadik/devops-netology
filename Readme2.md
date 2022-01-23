@@ -30,22 +30,47 @@
 
 ### Ваш скрипт:
 ```python
-???
+#!/usr/bin/env python3
+
+import socket
+import json
+import yaml
+# Function to return IP address
+def get_IP_byName(host_name):
+   try:
+     host_ip = socket.gethostbyname(host_name)
+   except:
+     print("Unable to get Hostname and IP")
+   return host_ip
+
+with open('dns.json', 'r') as js1:
+    line = json.load(js1)
+
+for key, value in line.items():
+    newIP = get_IP_byName(key)
+    if value != newIP:
+       temp = {key : newIP}
+       print(key + ' IP mismatch: ' + value + ' ' + newIP)
+       with open('dns.json', 'w') as js1:
+            js1.write(json.dumps(temp))
+       with open('dns.yml', 'w') as ym1:
+            ym1.write(yaml.dump(temp))
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-???
+vagrant@vagrant:/vagrant/gugl$ ./servic.py
+google.com IP mismatch: 216.58.20.174 216.58.209.174
 ```
 
 ### json-файл(ы), который(е) записал ваш скрипт:
 ```json
-???
+{"google.com": "216.58.209.174"}
 ```
 
 ### yml-файл(ы), который(е) записал ваш скрипт:
 ```yaml
-???
+google.com: 216.58.209.174
 ```
 
 ## Дополнительное задание (со звездочкой*) - необязательно к выполнению
