@@ -34,6 +34,33 @@ sudo apt-get update && sudo apt-get install vault
 vagrant@vagrant:~$ vault --version
 Vault v1.9.3 (7dbdd57243a0d8d9d9e07cd01eb657369f8e1b8a)
 4. Cоздайте центр сертификации по инструкции (ссылка) и выпустите сертификат для использования его в настройке веб-сервера nginx (срок жизни сертификата - месяц).
+Устанавливая по ссылке получаю ошибку. 
+vagrant@vagrant:~$ export VAULT_ADDR='http://127.0.0.1:8200'
+vagrant@vagrant:~$ export VAULT_TOKEN="s.1d8Jgj9oSXB1dg5tzKHpIa4J"
+vagrant@vagrant:~$ vault status
+Key             Value
+---             -----
+Seal Type       shamir
+Initialized     true
+Sealed          false
+Total Shares    1
+Threshold       1
+Version         1.9.3
+Storage Type    inmem
+Cluster Name    vault-cluster-7c0b816a
+Cluster ID      faf4dc9e-4a6e-be30-1dac-7645f0039ca4
+HA Enabled      false
+vagrant@vagrant:~$ vault server -dev -dev-root-token-id root
+Error parsing listener configuration.
+Error initializing listener of type tcp: listen tcp 127.0.0.1:8200: bind: address already in use
+2022-02-05T04:59:49.619Z [INFO]  proxy environment: http_proxy="\"\"" https_proxy="\"\"" no_proxy="\"\""
+2022-02-05T04:59:49.619Z [WARN]  no `api_addr` value specified in config or in VAULT_API_ADDR; falling back to detection if possible, but this value should be manually set
+2022-02-05T04:59:49.620Z [INFO]  core: Initializing VersionTimestamps for core
+*****************************
+Вроде не проходили Vault,  не понимаю, что это такое. Статьи читаю, но не могу уловить общую "картину", вроде для хранения секретов, а зачем тут Центр сертификации...
+Требуется две машины Linux поднять для разворачивания этой схемы и тестирования или на одной?
+*********************
+
 Установите корневой сертификат созданного центра сертификации в доверенные в хостовой системе.
 Установите nginx.
 По инструкции (ссылка) настройте nginx на https, используя ранее подготовленный сертификат:
