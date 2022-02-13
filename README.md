@@ -9,6 +9,7 @@
 С уважением,
 Алексей
 *****
+<hr>
 Алексей добрый день!, в видео лекции этого не было. Поиск в Google статей  дает
 https://rustamkhodjaev.com/2019/06/08/concept_of_virtualization_oracle_vm_installation/
 с учетом моего полного не понимания этой темы , в статье есть
