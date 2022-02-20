@@ -1,3 +1,31 @@
+Удалось установтиь докер так
+vagrantfile
+$script = <<-SCRIPT
+apt-get update -y && apt-get upgrade -y
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common git
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ $(lsb_release -cs) stable"
+apt-get update -y
+apt-cache polisy docker-ce -y
+apt-get install docker-ce -y
+udo usermod -aG docker ${USER}
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.hostname = "trusty"
+  config.vm.provision "shell", inline: $script
+  config.vm.network "public_network", bridge: "en1: Realtek PCIe GBE Family Controller"
+end
+
+
+
+
+vagrant@trusty:~$ sudo docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+
+
+
 Домашнее задание к занятию "5.2. Применение принципов IaaC в работе с виртуальными машинами"
 
 Задача 1
