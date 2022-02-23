@@ -63,25 +63,19 @@ ansible 2.8.4
 ```
 
 Задача 4 (*)
-Воспроизвести практическую часть лекции самостоятельно.
+Воспроизвести практическую часть лекции самостоятельно.  
 
-*Vagrant не видит Ansible установленный в Windows через Cygwin*
-
-Команда vagrant up  дает
-
-Windows is not officially supported for the Ansible Control Machine.
-
-Please check https://docs.ansible.com/intro_installation.html#control-machine-requirements
-
-Vagrant gathered an unknown Ansible version:
-
-and falls back on the compatibility mode '1.8'.
-
-Alternatively, the compatibility mode can be specified in your Vagrantfile:
-https://www.vagrantup.com/docs/provisioning/ansible_common.html#compatibility_mode
-    server1.netology: Running ansible-playbook...
-The Ansible software could not be found! Please verify
-that Ansible is correctly installed on your host system.
+Vagrant не видит Ansible установленный в Windows через Cygwin  
+Команда vagrant up  дает  
+Windows is not officially supported for the Ansible Control Machine.  
+Please check https://docs.ansible.com/intro_installation.html#control-machine-requirements  
+Vagrant gathered an unknown Ansible version:  
+and falls back on the compatibility mode '1.8'.  
+Alternatively, the compatibility mode can be specified in your Vagrantfile:  
+https://www.vagrantup.com/docs/provisioning/ansible_common.html#compatibility_mode  
+    server1.netology: Running ansible-playbook...  
+The Ansible software could not be found! Please verify  
+that Ansible is correctly installed on your host system.  
 
 If you haven't installed Ansible yet, please install Ansible
 on your host system. Vagrant can't do this for you in a safe and
