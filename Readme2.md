@@ -6,6 +6,7 @@
 Задание
 1. Создайте виртуальную машину Linux.
 2. Установите ufw и разрешите к этой машине сессии на порты 22 и 443, при этом трафик на интерфейсе localhost (lo) должен ходить свободно на все порты.
+```bash
 vagrant@vagrant:~$ sudo ufw default deny incoming
 vagrant@vagrant:~$ sudo ufw default allow outgoing
 vagrant@vagrant:~$ sudo ufw allow 22
@@ -24,53 +25,99 @@ To                         Action      From
 443                        ALLOW       Anywhere
 22 (v6)                    ALLOW       Anywhere (v6)
 443 (v6)                   ALLOW       Anywhere (v6)
-
+```
 3. Установите hashicorp vault (инструкция по ссылке).
-https://learn.hashicorp.com/tutorials/vault/getting-started-install?in=vault/getting-started#install-vault
-
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com  $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install vault
-vagrant@vagrant:~$ vault --version
+vault установил 
+```bash
+vagrant@trusty:~$ vault --version
 Vault v1.9.3 (7dbdd57243a0d8d9d9e07cd01eb657369f8e1b8a)
+```
 4. Cоздайте центр сертификации по инструкции (ссылка) и выпустите сертификат для использования его в настройке веб-сервера nginx (срок жизни сертификата - месяц).
-Устанавливая по ссылке получаю ошибку. 
-vagrant@vagrant:~$ export VAULT_ADDR='http://127.0.0.1:8200'
-vagrant@vagrant:~$ export VAULT_TOKEN="s.1d8Jgj9oSXB1dg5tzKHpIa4J"
-vagrant@vagrant:~$ vault status
-Key             Value
----             -----
-Seal Type       shamir
-Initialized     true
-Sealed          false
-Total Shares    1
-Threshold       1
-Version         1.9.3
-Storage Type    inmem
-Cluster Name    vault-cluster-7c0b816a
-Cluster ID      faf4dc9e-4a6e-be30-1dac-7645f0039ca4
-HA Enabled      false
-vagrant@vagrant:~$ vault server -dev -dev-root-token-id root
-Error parsing listener configuration.
-Error initializing listener of type tcp: listen tcp 127.0.0.1:8200: bind: address already in use
-2022-02-05T04:59:49.619Z [INFO]  proxy environment: http_proxy="\"\"" https_proxy="\"\"" no_proxy="\"\""
-2022-02-05T04:59:49.619Z [WARN]  no `api_addr` value specified in config or in VAULT_API_ADDR; falling back to detection if possible, but this value should be manually set
-2022-02-05T04:59:49.620Z [INFO]  core: Initializing VersionTimestamps for core
-*****************************
-Вроде не проходили Vault,  не понимаю, что это такое. Статьи читаю, но не могу уловить общую "картину", вроде для хранения секретов, а зачем тут Центр сертификации...
-Требуется две машины Linux поднять для разворачивания этой схемы и тестирования или на одной?
-*********************
+Выполнял по инструкции, на Step 2  
+Execute the following command to generate an intermediate and save the CSR as pki_intermediate.csr  
+```bash
+vagrant@trusty:~$ vault write -format=json pki_int/intermediate/generate/internal \
+>      common_name="example.com Intermediate Authority" \
+>      | jq -r '.data.csr' > pki_intermediate.csr
+-bash: jq: command not found
+vagrant@trusty:~$
+```
+Установил не найденую команду jq
+```bash
+vagrant@trusty:~$ sudo apt-get install jq
+```  
+Повторил прежнюю команду, выполнилась. Далее остальные команды тоже ОК.  
+Результат  
+```bash
+private_key         -----BEGIN RSA PRIVATE KEY-----
+MIIEpgIBAAKCAQEAup8BwG20pxwlDLtTfnGj6w5XkaL08YK8uQlCx8hVlD1+pAKy
+AQshmD6xJ70tXSAEUljycWAdK02qgS7wOZnx9uPYLsGhSg/RagZvpQRkZEQupdU4
++ykXzffDqfE6Noag5tVC0TPntgqQePKC9WJm32GW1+7zUSsslXvOmQ1Und70D4YZ
+kqjOj2TLgEDy9n1O6+dw6ij7ff8Yswm+3xMlkSDyVB6xlIHnBJqTvhkBN0bV9oxx
++X1TI/RcrR2bHY7mNOInqD98Zkwsr8NXH430r88qEaXXWnM5LAZbReoPKQRaqITT
+/S2sl76bsqhDSe9s05STubgBqyDA6QmmKn90oQIDAQABAoIBAQCR3pul55pfTJaB
+HyMiIH15y5oTEgbXh9Mv5tc2BZcu6epFFH5CZor5z3b1kt8UfWQjYbcPe4sRQAHY
+O/I1c+k3i9x8n4kMtNSBRUqa95Xo8YpswP9rAjHDIrjj6tQPrqeyBlvV3fZtylAm
+2ZgXabTzQfqAChxSA6czqLRR2aOcSUUWxFuLij0YyGAb+gd2Q0eqqiinMMHu33G0
+L+zjDwvd0X1YN/f5pIR5ITvbGlijFF0BxEgX4vTmPm2ppKmaq5YXEt3PF/ZalCEk
+3kfTlJyhaqZNlXMYgESH0owB5AfzdP3qFdWmgZ2wlqkLX6dT23uIQno+oey2nn0Z
+ThFCbAABAoGBAOL+zLQN9F7MwewK8sYbD3UUMRCPNKdprayuFYbSBSomT08Bun0Y
+la15xqIQyDPjP0bv4prjeNp3Q9DdkxpZcRFF9/TxKNCTc5upEQ1VFNZC3PBth/gZ
+Cwq6muNVQrvlNcgzJ3HPo0Xli3LFkHhojxf4mWEW7CRje6CBI8uTykChAoGBANJ3
+iOZNsZ/zYlTJcSPpBLwT+QGG1cdAstl+37lXJbclyYQrS3JVqONtg6ZfolJsbBE1
+kruMlP57CcgCgObRTcsqOE3U5QJY01SfMR7QPO2pAmDcKNK43AcFygBZPYUP6JeP
+e5bozye/PdD4e9F1oIB+mR12DFhLb+Uggh8mxLQBAoGBAJzu5Z0x7JnB2+wR4ag+
+uyAJdqZpK1D2yeCRdkaAWpu6YqhPnJux7IFDqKURDyh4Wp3zaOoGi94WCGeVWIcm
+APqdMgFA3SPeXVXnu+dIxCAhl9gNEazfu3eObVjv8DQxEk63tvSDRfEj8pXFqszk
+FNHQyFGMZHP/50+fGJ09Lt4hAoGBAKMM4A4rmrRkBYXSGcjMOVLL1lkMcInQ4b4F
+wKUBksJ0j83JDMYi/phSu28lH8fjH0Wlz2tk2fjcsRM2fU5UUIRYzQ3fJRvQXMhu
+G8vXX5xvFtybMzUs6ai3H2ttt29ih7sC+ahL7FDKo8VE/AelrRZe/ZgJYD73ElTb
+/nLLwhABAoGBAMYly12BwsVjXIQcS6+U4fSkPmCcRwNxqJOfDOvpp1uwJ9jQlp9u
+rKwP7BeS0Q6xjcIpvp1CYdCaBA+fuPSA1uIzdXTvaMMDD9uXmsXVEeL7lsfVtbDY
+GooR2ASW+uOR/WOf97qOBldb6Q3ikDPE+p7KZJGEarxnltMHWxunRUFg
+-----END RSA PRIVATE KEY-----
+private_key_type    rsa
+serial_number       3e:d6:d4:d2:2a:29:bf:c5:22:88:23:db:34:59:90:15:e9:e2:46:c0
+vagrant@trusty:~$
 
-Установите корневой сертификат созданного центра сертификации в доверенные в хостовой системе.
-Установите nginx.
-По инструкции (ссылка) настройте nginx на https, используя ранее подготовленный сертификат:
-можно использовать стандартную стартовую страницу nginx для демонстрации работы сервера;
-можно использовать и другой html файл, сделанный вами;
-Откройте в браузере на хосте https адрес страницы, которую обслуживает сервер nginx.
-Создайте скрипт, который будет генерировать новый сертификат в vault:
+root@trusty:/home/vagrant# ls
+CA_cert.crt  intermediate.cert.pem  pki_intermediate.csr  unseal.key
+```
+5. Установите корневой сертификат созданного центра сертификации в доверенные в хостовой системе.  
+CA_cert.crt  установил в хостовой системе
+<code>![sert](/серт.jpg "сертификат")
+</code>  
+
+<code>![sert](/серт2.jpg "сертификат")
+</code>
+6. Установите nginx.
+```bash
+vagrant@trusty:~$ sudo apt install nginx
+vagrant@trusty:~$ sudo ufw allow 80
+vagrant@trusty:~$ sudo ufw enable
+```
+http://192.168.0.112/  
+Доступен с хотовой машины.
+
+Welcome to nginx!
+If you see this page, the nginx web server is successfully installed and working. Further configuration is required.  
+For online documentation and support please refer to nginx.org.  
+Commercial support is available at nginx.com.  
+Thank you for using nginx.  
+
+###### Дальше застрял на 7 задании
+Разбираюсь с инструкцией. Надеюсь 6 заданий сделаны верно. 
+
+
+7. По инструкции (ссылка) настройте nginx на https, используя ранее подготовленный сертификат:
+*можно использовать стандартную стартовую страницу nginx для демонстрации работы сервера;
+*можно использовать и другой html файл, сделанный вами;  
+
+8. Откройте в браузере на хосте https адрес страницы, которую обслуживает сервер nginx.
+9. Создайте скрипт, который будет генерировать новый сертификат в vault:
 генерируем новый сертификат так, чтобы не переписывать конфиг nginx;
 перезапускаем nginx для применения нового сертификата.
-Поместите скрипт в crontab, чтобы сертификат обновлялся какого-то числа каждого месяца в удобное для вас время.
+10. Поместите скрипт в crontab, чтобы сертификат обновлялся какого-то числа каждого месяца в удобное для вас время.
 Результат
 Результатом курсовой работы должны быть снимки экрана или текст:
 
