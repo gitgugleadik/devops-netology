@@ -95,6 +95,28 @@ CA_cert.crt  установил в хостовой системе
 vagrant@trusty:~$ sudo apt install nginx
 vagrant@trusty:~$ sudo ufw allow 80
 vagrant@trusty:~$ sudo ufw enable
+vagrant@trusty:~$ sudo ufw allow 'Nginx Full'
+vagrant@trusty:~$ sudo ufw allow 'OpenSSH'
+vagrant@trusty:~$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22                         ALLOW       Anywhere
+443                        ALLOW       Anywhere
+8200                       ALLOW       Anywhere
+8080                       ALLOW       Anywhere
+80                         ALLOW       Anywhere
+Nginx Full                 ALLOW       Anywhere
+OpenSSH                    ALLOW       Anywhere
+22 (v6)                    ALLOW       Anywhere (v6)
+443 (v6)                   ALLOW       Anywhere (v6)
+8200 (v6)                  ALLOW       Anywhere (v6)
+8080 (v6)                  ALLOW       Anywhere (v6)
+80 (v6)                    ALLOW       Anywhere (v6)
+Nginx Full (v6)            ALLOW       Anywhere (v6)
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+
 ```
 http://192.168.0.112/  
 Доступен с хотовой машины.
