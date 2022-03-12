@@ -1,36 +1,3 @@
-Эдуард, спасибо за проделанную работу а где ответ на 6 вопрос?
-
-Задача 6 Создайте бэкап БД test_db и поместите его в volume, предназначенный для бэкапов (см. Задачу 1).
-
-Остановите контейнер с PostgreSQL (но не удаляйте volumes).
-
-Поднимите новый пустой контейнер с PostgreSQL.
-
-Восстановите БД test_db в новом контейнере.
-
-Приведите список операций, который вы применяли для бэкапа данных и восстановления
-
-
-У меня сложности с Задачей 1. и как следствие с Задачей 6
-Не понимаю работу контейнера.
-1. В видео лекции был компос манифест как пример там были FROM...   RUN и т.д. 
-на сайте Habr нашел статью compose-файл:  в формате YAML  но как это работает, как этим пользоваться не понятно
-2. на https://hub.docker.com/_/postgres  указано, что надо так
-docker pull postgres
-В итоге дайте какие-то пояснения. 
-3. не думайте, что я не пробовал. Вариантов 20 уже испробовано, очевидно, что я не верно чтото понимаю
-вот последний результат
-```bash
-root@guglVirt:/home/gugl# docker run --name habr-pg-13.3 -p 5432:5432 -e POSTGRES_USER=habrpguser -e POSTGRES_PASSWORD=pgpwd4habr -e POSTGRES_DB=habrdb -d postgres:12
-c44c51948a65c6e10f1c631056428a1fe80647f13e851bbe3642779ebc1c18b4
-root@guglVirt:/home/gugl# psql -U habrpguser -d habrdb
-psql: error: could not connect to server: Нет такого файла или каталога
-        Is the server running locally and accepting
-        connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
-
-```
-Контейнер запущен, а как подключиться к postgres в этом контейнере не получается.
-
 ## Домашнее задание к занятию "6.2. SQL"
 Введение
 Перед выполнением задания вы можете ознакомиться с дополнительными материалами.
@@ -40,6 +7,31 @@ psql: error: could not connect to server: Нет такого файла или 
 
 Приведите получившуюся команду или docker-compose манифест.  
 c docker пока не получается, но пытаюсь
+```bash
+gugl@guglVirt:~$ docker pull postgres:12
+
+gugl@guglVirt:~$ docker images
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+postgres      12        963b1b753ca6   3 days ago     373MB
+hello-world   latest    feb5d9fea6a5   5 months ago   13.3kB
+
+gugl@guglVirt:~$ docker volume create vol2
+vol2
+gugl@guglVirt:~$ docker volume create vol1
+vol1
+
+gugl@guglVirt:~$ docker run --name postgres-1 -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres:12
+54a23ebfe3467907c49aa5723e8b12d8f03a1046914b77dab2ccfc10e2bd04e3
+
+gugl@guglVirt:~$ docker exec -it postgres-1 bash
+
+root@073b9d67e2db:/# psql -U postgres
+psql (12.10 (Debian 12.10-1.pgdg110+1))
+Type "help" for help.
+
+postgres=#
+``
+
 
 2. Задача 2  
 В БД из задачи 1:  
@@ -256,4 +248,57 @@ width размер строки в байтах - 156 байт
 Восстановите БД test_db в новом контейнере.
 
 Приведите список операций, который вы применяли для бэкапа данных и восстановления.
+```bash
+postgres@02a245eea370:~$ mkdir backup
+postgres@02a245eea370:~$ cd backup
+postgres@02a245eea370:~/backup$ pg_dump test_db > dump1203.dump
+postgres@02a245eea370:~/backup$ ls -la
+total 12
+drwxr-xr-x 2 postgres postgres 4096 Mar 12 15:11 .
+drwxr-xr-x 4 postgres postgres 4096 Mar 12 15:10 ..
+-rw-r--r-- 1 postgres postgres 2718 Mar 12 15:11 dump1203.sql
 
+gugl@guglVirt:~$ docker stop postgres-2
+postgres-2
+gugl@guglVirt:~$ docker run --name postgres-4 -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 -v vol1:/var/lib/postgresql/data1 -v vol2:/var/lib/postgresql postgres:12
+b66bbf531046cbadce710e86d250601eec1543c9460f6a4d6d0a9c118c477c57
+
+gugl@guglVirt:~$ docker exec -it postgres-4 bash
+root@b66bbf531046:/# su - postgres
+postgres@b66bbf531046:~$ \db
+-bash: db: command not found
+
+postgres@b66bbf531046:~/backup$ mv dump1203.dump dump1203.sql
+postgres@b66bbf531046:~/backup$ psql -U postgres -d test_db -f dump1203.sql
+SET
+SET
+SET
+SET
+SET
+ set_config 
+------------
+ 
+(1 row)
+
+SET
+SET
+SET
+SET
+SET
+SET
+CREATE TABLE
+ALTER TABLE
+CREATE TABLE
+ALTER TABLE
+COPY 5
+COPY 5
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+psql -d test_db
+
+psql (12.10 (Debian 12.10-1.pgdg110+1))
+Type "help" for help.
+
+test_db=# 
+``
