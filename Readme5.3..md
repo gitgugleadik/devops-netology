@@ -30,7 +30,7 @@ https://hub.docker.com/repository/docker/gugleadik/nginx_netology
 Примерный набор команд
 ```bash
 docker pull nginx  
-docker run -d --name nginx-server -p 80:80  
+docker run -d --name nginx-server -p 80:80 nginx
 ```
 # Nginx заработал  
 ```bash
