@@ -28,17 +28,19 @@ Hey, Netology
 https://hub.docker.com/repository/docker/gugleadik/nginx_netology
 
 Примерный набор команд
-
+```bash
 docker pull nginx  
 docker run -d --name nginx-server -p 80:80  
+```
 # Nginx заработал  
+```bash
 docker ps -a  
 docker exec -it nginx-server bash  
 echo '<html><head>Hey, Netology</head><body><h1>DevOps Engineer!</h1></body></html>' > /usr/share/nginx/html/default.html
 
 docker cp nginx-server:/etc/nginx/nginx.conf nginx.conf
 
-```bash 
+ 
 > Dockerfile
 
 FROM nginx
@@ -48,8 +50,15 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 RUN echo '<html><head>Hey, Netology</head><body><h1>I’m DevOps Engineer!</h1></body></html>' > /usr/share/nginx/html/default.html
 
+```  
+Создал репозиторий gugleadik/nginx_netology на сайте   https://hub.docker.com  
+Создал image
+```bash
+docker build -t nginx_netology .  
+docker tag nginx_netology gugleadik/nginx_netology  
+docker login -u gugleadik  
+docker push gugleadik/nginx_netology:latest  
 ```
-
 # Задача 2
 Посмотрите на сценарий ниже и ответьте на вопрос: "Подходит ли в этом сценарии использование Docker контейнеров или лучше подойдет виртуальная машина, физическая машина? Может быть возможны разные варианты?"
 
