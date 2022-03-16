@@ -101,6 +101,40 @@ Gitlab сервер для реализации CI/CD процессов и пр
 Подключитесь к первому контейнеру с помощью docker exec и создайте текстовый файл любого содержания в /data;
 Добавьте еще один файл в папку /data на хостовой машине;
 Подключитесь во второй контейнер и отобразите листинг и содержание файлов в /data контейнера.
+```bash
+root@bento:/data# docker run -t -d --name centos1 -v /data:/data centos
+
+docker exec -it centos1 bash
+[root@fbb5c7d85bc8 data]# echo 'file centos' > centos_docker.txt
+[root@fbb5c7d85bc8 data]# ls -la
+total 12
+drwxr-xr-x 2 root root 4096 Mar 16 17:54 .
+drwxr-xr-x 1 root root 4096 Mar 16 17:40 ..
+-rw-r--r-- 1 root root   12 Mar 16 17:54 centos_docker.txt
+[root@fbb5c7d85bc8 data]# exit
+exit
+
+root@bento:/data# echo 'from host mashine file' > host.txt
+root@bento:/data# ls -la
+total 16
+drwxr-xr-x  2 root root 4096 Mar 16 17:55 .
+drwxr-xr-x 23 root root 4096 Mar 16 17:39 ..
+-rw-r--r--  1 root root   12 Mar 16 17:54 centos_docker.txt
+-rw-r--r--  1 root root   23 Mar 16 17:55 host.txt
+
+root@bento:/data# docker run -t -d --name debian1 -v /data:/data debian
+ec53e9d9484e44db594ba47614216e0bd8a9ca2d4c654eac1844ca4d9a2b7705
+root@bento:/data#
+root@bento:/data# docker exec -it debian1 bash
+root@ec53e9d9484e:/# cd data/
+root@ec53e9d9484e:/data# ls -la
+total 16
+drwxr-xr-x 2 root root 4096 Mar 16 17:55 .
+drwxr-xr-x 1 root root 4096 Mar 16 17:56 ..
+-rw-r--r-- 1 root root   12 Mar 16 17:54 centos_docker.txt
+-rw-r--r-- 1 root root   23 Mar 16 17:55 host.txt
+```
+
 # Задача 4 (*)
 Воспроизвести практическую часть лекции самостоятельно.
 
