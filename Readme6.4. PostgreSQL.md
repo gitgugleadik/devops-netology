@@ -90,10 +90,33 @@ test_database=# select avg_width from pg_stats where tablename='orders';
 Архитектор и администратор БД выяснили, что ваша таблица orders разрослась до невиданных размеров и поиск по ней занимает долгое время. Вам, как успешному выпускнику курсов DevOps в нетологии предложили провести разбиение таблицы на 2 (шардировать на orders_1 - price>499 и orders_2 - price<=499).
 
 Предложите SQL-транзакцию для проведения данной операции.
+```bash
+test_database=# alter table orders rename to orders2;
+ALTER TABLE
+test_database=# create table orders (id integer, title varchar(80), price integer) partition by range(price);
+CREATE TABLE
+test_database=# create table orders_2 partition of orders for values from (0) to (499);
+CREATE TABLE
+test_database=# create table orders_1 partition of orders for values from (499) to (999999999);
+CREATE TABLE
+test_database=# insert into orders (id, title, price) select * from orders2;
+INSERT 0 8
+```
 
 Можно ли было изначально исключить "ручное" разбиение при проектировании таблицы orders?
+Можно было использовать секционирование
 
 ## Задача 4 
 Используя утилиту pg_dump создайте бекап БД test_database.
-
-Как бы вы доработали бэкап-файл, чтобы добавить уникальность значения столбца title для таблиц test_database?
+```bash
+postgres@99d4d1201b55:~$ pg_dump -U postgres -d test_database > dump.sql
+```
+Как бы вы доработали бэкап-файл, чтобы добавить уникальность значения столбца title для таблиц test_database?  
+ - Нужно добавить критерий UNIQUE  
+```bash
+CREATE TABLE public.orders_2 (
+    id integer,
+    title character varying(80) UNIQUE,
+    price integer
+);
+```
