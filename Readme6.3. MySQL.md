@@ -108,7 +108,56 @@ mysql> select count(*) from orders where price > 300;
 Имя "James"
 Предоставьте привелегии пользователю test на операции SELECT базы test_db.
 
-Используя таблицу INFORMATION_SCHEMA.USER_ATTRIBUTES получите данные по пользователю test и приведите в ответе к задаче.
+Используя таблицу INFORMATION_SCHEMA.USER_ATTRIBUTES получите данные по пользователю test и приведите в ответе к задаче.  
+```bash
+mysql> CREATE USER 'test'@'localhost' IDENTIFIED BY 'myparol';
+Query OK, 0 rows affected (0.01 sec)
+mysql> select * from INFORMATION_SCHEMA.USER_ATTRIBUTES;
++------------------+-----------+-----------+
+| USER             | HOST      | ATTRIBUTE |
++------------------+-----------+-----------+
+| root             | %         | NULL      |
+| mysql.infoschema | localhost | NULL      |
+| mysql.session    | localhost | NULL      |
+| mysql.sys        | localhost | NULL      |
+| root             | localhost | NULL      |
+| test             | localhost | NULL      |
++------------------+-----------+-----------+
+6 rows in set (0.00 sec)
+
+mysql> ALTER USER 'test'@'localhost'
+    -> IDENTIFIED BY 'myparol'
+    -> WITH
+    -> MAX_QUERIES_PER_HOUR 100
+    -> PASSWORD EXPIRE INTERVAL 180 DAY
+    -> FAILED_LOGIN_ATTEMPTS 3 PASSWORD_LOCK_TIME UNBOUNDED
+    -> ATTRIBUTE '{"fam": "Pretty", "name": "James"}';
+Query OK, 0 rows affected (0.02 sec)
+mysql> select * from INFORMATION_SCHEMA.USER_ATTRIBUTES;
++------------------+-----------+------------------------------------+
+| USER             | HOST      | ATTRIBUTE                          |
++------------------+-----------+------------------------------------+
+| root             | %         | NULL                               |
+| mysql.infoschema | localhost | NULL                               |
+| mysql.session    | localhost | NULL                               |
+| mysql.sys        | localhost | NULL                               |
+| root             | localhost | NULL                               |
+| test             | localhost | {"fam": "Pretty", "name": "James"} |
++------------------+-----------+------------------------------------+
+6 rows in set (0.01 sec)
+
+mysql> GRANT Select ON test_db.orders TO 'test'@'localhost';
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
++------+-----------+------------------------------------+
+| USER | HOST      | ATTRIBUTE                          |
++------+-----------+------------------------------------+
+| test | localhost | {"fam": "Pretty", "name": "James"} |
++------+-----------+------------------------------------+
+1 row in set (0.00 sec)
+
+```
 
 Задача 3
 Установите профилирование SET profiling = 1. Изучите вывод профилирования команд SHOW PROFILES;.
