@@ -5,6 +5,20 @@
 Подключитесь к БД PostgreSQL используя psql.
 
 Воспользуйтесь командой \? для вывода подсказки по имеющимся в psql управляющим командам.
+```bash
+root@bento:~# docker pull postgres:13
+root@bento:~# docker volume create vol1
+vol1
+root@bento:~# docker run --name postgres1 -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 -v vol1:/var/lib/postgresql/data postgres:13
+7c5004c4397b79930b8e4d40e0a9933abe8ca4de2fbcbcde00cb4dd21a47a60f
+root@bento:~# docker exec -it postgres1 bash
+root@7c5004c4397b:/# psql -U postgres
+psql (13.6 (Debian 13.6-1.pgdg110+1))
+Type "help" for help.
+
+postgres=#
+```
+
 
 Найдите и приведите управляющие команды для: 
 
@@ -13,6 +27,14 @@
 вывода списка таблиц
 вывода описания содержимого таблиц
 выхода из psql
+```bash
+
+ \l[+]   [PATTERN]      list databases
+\c[onnect] {[DBNAME|- USER|- HOST|- PORT|-] | conninfo}     connect to new database (currently "postgres")
+ \dt[S+] [PATTERN]      list tables
+   \d[S+]  NAME           describe table, view, sequence, or index
+   \q
+   ```
 ## Задача 2 
 Используя psql создайте БД test_database.
 
