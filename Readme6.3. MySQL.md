@@ -168,14 +168,122 @@ mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
 
 на MyISAM
 на InnoDB
-Задача 4
-Изучите файл my.cnf в директории /etc/mysql.
+```bash
+mysql> SET profiling = 1;
+mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
++------+-----------+------------------------------------+
+| USER | HOST      | ATTRIBUTE                          |
++------+-----------+------------------------------------+
+| test | localhost | {"fam": "Pretty", "name": "James"} |
++------+-----------+------------------------------------+
+1 row in set (0.00 sec)
 
-Измените его согласно ТЗ (движок InnoDB):
+mysql> SHOW PROFILES;
++----------+------------+--------------------------------------------------------------------+
+| Query_ID | Duration   | Query                                                              |
++----------+------------+--------------------------------------------------------------------+
+|        1 | 0.00042900 | SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test' |
++----------+------------+--------------------------------------------------------------------+
+1 row in set, 1 warning (0.00 sec)
+mysql> SELECT TABLE_NAME,ENGINE,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH FROM information_schema.TABLES WHERE table_name = 'orders' and  TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc;
++------------+--------+------------+------------+-------------+--------------+
+| TABLE_NAME | ENGINE | ROW_FORMAT | TABLE_ROWS | DATA_LENGTH | INDEX_LENGTH |
++------------+--------+------------+------------+-------------+--------------+
+| orders     | InnoDB | Dynamic    |          5 |       16384 |            0 |
++------------+--------+------------+------------+-------------+--------------+
+1 row in set (0.00 sec)
 
-Скорость IO важнее сохранности данных
-Нужна компрессия таблиц для экономии места на диске
-Размер буффера с незакомиченными транзакциями 1 Мб
-Буффер кеширования 30% от ОЗУ
-Размер файла логов операций 100 Мб
-Приведите в ответе измененный файл my.cnf.
+
+Используется InnoDB
+
+mysql> ALTER TABLE orders ENGINE = MyISAM;
+Query OK, 5 rows affected (0.03 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT TABLE_NAME,ENGINE,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH FROM information_schema.TABLES WHERE table_name = 'orders' and  TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc;
++------------+--------+------------+------------+-------------+--------------+
+| TABLE_NAME | ENGINE | ROW_FORMAT | TABLE_ROWS | DATA_LENGTH | INDEX_LENGTH |
++------------+--------+------------+------------+-------------+--------------+
+| orders     | MyISAM | Dynamic    |          5 |       16384 |            0 |
++------------+--------+------------+------------+-------------+--------------+
+1 row in set (0.00 sec)
+
+mysql> ALTER TABLE orders ENGINE = InnoDB;
+Query OK, 5 rows affected (0.03 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SHOW PROFILES;
++----------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Query_ID | Duration   | Query                                                                                                                                                                                |
++----------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|        1 | 0.00042900 | SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test'                                                                                                                   |
+|        2 | 0.00172150 | SELECT * FROM information_schema.TABLES WHERE table_name = 'orders' and  TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc                                                                |
+|        3 | 0.00120675 | SELECT TABLE_NAME,ENGINE,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH FROM information_schema.TABLES WHERE table_name = 'orders' and  TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc |
+|        4 | 0.00007475 | ALTER TABLE orders ENGINE = MyISAM                                                                                                                                                   |
+|        5 | 0.00026950 | select * from orders                                                                                                                                                                 |
+|        6 | 0.00014575 | SELECT DATABASE()                                                                                                                                                                    |
+|        7 | 0.00072600 | show databases                                                                                                                                                                       |
+|        8 | 0.00085550 | show tables                                                                                                                                                                          |
+|        9 | 0.00031275 | select * from orders                                                                                                                                                                 |
+|       10 | 0.02430250 | ALTER TABLE orders ENGINE = MyISAM                                                                                                                                                   |
+|       11 | 0.00138825 | SELECT TABLE_NAME,ENGINE,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH FROM information_schema.TABLES WHERE table_name = 'orders' and  TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc |
+|       12 | 0.00053825 | SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test'                                                                                                                   |
+|       13 | 0.02744125 | ALTER TABLE orders ENGINE = InnoDB                                                                                                                                                   |
++----------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+13 rows in set, 1 warning (0.00 sec)
+
+Продолжительность переключения
+
+10 | 0.02430250 | ALTER TABLE orders ENGINE = MyISAM 
+13 | 0.02744125 | ALTER TABLE orders ENGINE = InnoDB      
+
+
+
+```
+
+
+## Задача 4  
+Изучите файл my.cnf в директории /etc/mysql.  
+
+Измените его согласно ТЗ (движок InnoDB):  
+
+Скорость IO важнее сохранности данных  
+Нужна компрессия таблиц для экономии места на диске  
+Размер буффера с незакомиченными транзакциями 1 Мб  
+Буффер кеширования 30% от ОЗУ  
+Размер файла логов операций 100 Мб  
+Приведите в ответе измененный файл my.cnf.  
+
+```bash
+root@750287e19fe4:/# cat /etc/mysql/my.cnf
+
+[mysqld]
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+secure-file-priv= NULL
+
+# Custom config should go here
+!includedir /etc/mysql/conf.d/
+
+#Скорость IO важнее сохранности данных
+# 0 - скорость
+# 1 - сохранность
+# 2 - универсальный параметр
+innodb_flush_log_at_trx_commit = 0
+
+#Set compression
+# Barracuda - формат файла с сжатием увеличивает нагрузку на процессор
+innodb_file_format=Barracuda
+
+#Размер буфера с незакомиченными транзакциями 1 Мб
+innodb_log_buffer_size  = 1M
+
+#Буфер кеширования 30% от ОЗУ
+key_buffer_size = 330М
+
+# Размер файла логов операций 100 Мб
+max_binlog_size = 100M
+```
+
+
