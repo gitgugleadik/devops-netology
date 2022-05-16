@@ -24,6 +24,28 @@
 8. Запускаем анализатор повторно - проверяем, что QG пройдены успешно
 9. Делаем скриншот успешного прохождения анализа, прикладываем к решению ДЗ
 
+```bash
+root@bento:/etc# sonar-scanner --version
+INFO: Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties
+INFO: Project root configuration file: NONE
+INFO: SonarScanner 4.7.0.2747
+INFO: Java 11.0.14.1 Eclipse Adoptium (64-bit)
+INFO: Linux 5.4.0-91-generic amd64
+```
+
+
+```bash
+
+sonar-scanner \
+   -Dsonar.projectKey=gugleadik \
+   -Dsonar.sources=. \
+   -Dsonar.host.url=http://192.168.0.125:9000 \
+   -Dsonar.login=7ac703b547b9af1931513c4a8efa571f251c94b2
+ ```
+   
+```bash
+root@bento:/vagrant# sonar-scanner -Dsonar.coverage.exclusions=fail.py
+```
 ## Знакомство с Nexus
 
 ### Подготовка к выполнению
