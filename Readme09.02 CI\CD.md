@@ -67,7 +67,7 @@ ERROR: Not authorized. Analyzing this project requires authentication. Please pr
 ERROR:
 ERROR: Re-run SonarScanner using the -X switch to enable full debug logging.
 ```
-
+## 0902CICD.PNG
 
 ## Знакомство с Nexus
 
