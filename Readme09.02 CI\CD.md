@@ -45,7 +45,30 @@ sonar-scanner \
    
 ```bash
 root@bento:/vagrant# sonar-scanner -Dsonar.coverage.exclusions=fail.py
+INFO: Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties
+INFO: Project root configuration file: NONE
+INFO: SonarScanner 4.7.0.2747
+INFO: Java 11.0.14.1 Eclipse Adoptium (64-bit)
+INFO: Linux 5.4.0-91-generic amd64
+INFO: User cache: /root/.sonar/cache
+INFO: Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties
+INFO: Project root configuration file: NONE
+INFO: Analyzing on SonarQube server 8.7.1
+INFO: Default locale: "en_US", source code encoding: "UTF-8" (analysis is platform dependent)
+INFO: Load global settings
+INFO: ------------------------------------------------------------------------
+INFO: EXECUTION FAILURE
+INFO: ------------------------------------------------------------------------
+INFO: Total time: 1.477s
+INFO: Final Memory: 5M/15M
+INFO: ------------------------------------------------------------------------
+ERROR: Error during SonarScanner execution
+ERROR: Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other credentials in sonar.login and sonar.password.
+ERROR:
+ERROR: Re-run SonarScanner using the -X switch to enable full debug logging.
 ```
+
+
 ## Знакомство с Nexus
 
 ### Подготовка к выполнению
