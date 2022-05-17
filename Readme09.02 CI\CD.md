@@ -41,6 +41,18 @@ sonar-scanner \
    -Dsonar.sources=. \
    -Dsonar.host.url=http://192.168.0.125:9000 \
    -Dsonar.login=7ac703b547b9af1931513c4a8efa571f251c94b2
+ .
+ .
+ .
+INFO: More about the report processing at http://192.168.0.125:9000/api/ce/task?id=AYDRsycJXn4BPStiOiTS
+INFO: Analysis total time: 20.461 s
+INFO: ------------------------------------------------------------------------
+INFO: EXECUTION SUCCESS
+INFO: ------------------------------------------------------------------------
+INFO: Total time: 22.548s
+INFO: Final Memory: 16M/237M
+INFO: ------------------------------------------------------------------------
+ 
  ```
    
 ```bash
@@ -67,7 +79,13 @@ ERROR: Not authorized. Analyzing this project requires authentication. Please pr
 ERROR:
 ERROR: Re-run SonarScanner using the -X switch to enable full debug logging.
 ```
-## 0902CICD.PNG
+## 0902CICD.PNG  
+
+Сначала вроед работало, потом 7. Исправляем ошибки, которые он выявил(включая warnings)
+исправил ошибки (исправил в файле fail.py) 
+8. Запускаем анализатор повторно - проверяем, что QG пройдены успешно
+Этот пункт не смог выполнить, не понял как, в лекции не нашел, пробовал делать новый проект и загрузить снова fail.py
+
 
 ## Знакомство с Nexus
 
