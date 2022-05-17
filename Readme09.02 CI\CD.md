@@ -80,7 +80,8 @@ ERROR:
 ERROR: Re-run SonarScanner using the -X switch to enable full debug logging.
 ```
 ## 0902CICD.PNG  
-
+<code>(/0902CICD.PNG "Пейзаж")
+</code>
 Сначала вроед работало, потом 7. Исправляем ошибки, которые он выявил(включая warnings)
 исправил ошибки (исправил в файле fail.py) 
 8. Запускаем анализатор повторно - проверяем, что QG пройдены успешно
