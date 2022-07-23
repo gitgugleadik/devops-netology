@@ -37,6 +37,52 @@ AWS предоставляет достаточно много бесплатн�
 4. Воспользуйтесь [инструкцией](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs) на сайте терраформа, что бы 
 не указывать авторизационный токен в коде, а терраформ провайдер брал его из переменных окружений.
 
+## К сожалению из лекции не понял про терраформ, понял только после просмотра https://www.youtube.com/watch?v=R0CaxXhrfFE&list=PLg5SS_4L6LYujWDTYb-Zbofdl44Jxb2l8&index=1
+
+Эта ссылка https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs  не открывается...
+Установил терраформ 
+создал файл 
+***
+variable TOKEN {
+  type  = string
+}
+
+terraform {
+  required_providers {
+    yandex = {
+      source = "yandex-cloud/yandex"
+    }
+  }
+  required_version = ">= 0.13"
+}
+
+provider "yandex" {
+  token     = var.TOKEN
+  cloud_id  = "b1g9306qvuv42tuj5hr9"
+  folder_id = "b1g5h0kpmrfa4ptlflgu"
+  zone      = "ru-central-b"
+}
+
+***
+C:\Terraform\les1>terraform.exe init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding latest version of yandex-cloud/yandex...
+╷
+│ Error: Failed to query available provider packages
+│
+│ Could not retrieve the list of available versions for provider yandex-cloud/yandex: could not connect to
+│ registry.terraform.io: Failed to request discovery document: 403 Forbidden
+
+видимо что-то с доступом
+Жаль, что вы не показали в лекции минимальный пример работы, чтоб мы могли повторить, а потом его расширять.
+
+
+
+
+
 ## Задача 2. Создание aws ec2 или yandex_compute_instance через терраформ. 
 
 1. В каталоге `terraform` вашего основного репозитория, который был создан в начале курсе, создайте файл `main.tf` и `versions.tf`.
